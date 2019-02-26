@@ -1,5 +1,6 @@
 
 document.addEventListener(`DOMContentLoaded`, fetchDoggos)
+document.querySelector('#good-dog-filter').addEventListener('click', filterDoggos)
 
 function getDogBar() {
   return document.querySelector('#dog-bar')
@@ -70,3 +71,25 @@ function patchDoggo(id) {
     body: JSON.stringify(data)
   }).then(resp => resp.json())
 }
+
+function getFilterButton() {
+  return document.getElementById('good-dog-filter').dataset.filter
+}
+
+function filterDoggos(e) {
+  e.preventDefault();
+  if (getFilterButton() === "OFF") {
+    document.getElementById('good-dog-filter').dataset.filter = "ON"
+    document.getElementById('good-dog-filter').innerText = "Filter good dogs: ON"
+    for(let i = 0; i < getDogBar().children.length; i++) {
+      if (JSON.parse(getDogBar().children[i].dataset.good) == false) {
+        getDogBar().children[i].style.display = "none";}
+      }
+    } else if (getFilterButton() === "ON") {
+      document.getElementById('good-dog-filter').dataset.filter = "OFF"
+      document.getElementById('good-dog-filter').innerText = "Filter good dogs: OFF"
+
+      for(let i = 0; i < getDogBar().children.length; i++) {
+        getDogBar().children[i].style.display = "flex";}
+      }
+    }
