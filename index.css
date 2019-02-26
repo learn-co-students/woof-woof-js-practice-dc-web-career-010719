@@ -29,7 +29,13 @@
   justify-content: center;
   align-items: center;
   border-radius: 2em;
-  border: 1px solid blue;
+  border: 2px solid blue;
+  background-color: #B1E1FF;
+}
+
+#dog-bar span p {
+  margin-inline-start: 1em;
+  margin-inline-end: 1em;
 }
 
 #dog-summary-container {
@@ -48,6 +54,15 @@
   max-height: 25vw;
 }
 
+#dog-info button {
+  margin-top: 1vh;
+  width: 20vw;
+  font-size: 1em;
+  height: 5vh;
+  border-radius: 3em;
+}
+
 body {
+  font-family: sans-serif;
   margin: 0;
 }
