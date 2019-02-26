@@ -1,6 +1,6 @@
 class Adapter{
-    constructor(){
-      this.baseURL = 'http://localhost:3000/pups'
+    constructor(url){
+      this.baseURL = url
     }
 
     getAllDogsJSON(){
