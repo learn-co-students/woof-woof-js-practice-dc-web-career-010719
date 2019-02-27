@@ -24,12 +24,17 @@
 
 #dog-bar span {
   height: 80%;
-  width: 8vw;
+  width: 9vw;
   display: flex;
   justify-content: center;
   align-items: center;
   border-radius: 2em;
   border: 1px solid blue;
+  background-image: url("http://sweetclipart.com/multisite/sweetclipart/files/imagecache/middle/dog_paw_print_black.png");
+  background-size: contain;
+  background-color: purple;
+  /* z-index: 100; */
+  color: yellow;
 }
 
 #dog-summary-container {
