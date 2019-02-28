@@ -1,63 +1,85 @@
-let dogContainer
-let filterButton
-
 document.addEventListener("DOMContentLoaded", init)
 
 function init() {
-  dogContainer = document.querySelector('#dog-bar')
   getAllDogs()
 
-  filterButton = document.querySelector('#good-dog-filter')
-  filterButton.addEventListener('click', handleClickOfFilter)
+  let filterButton = getFilterButton()
+  filterButton.addEventListener('click', handleClickOfFilterButton)
 }
 
 function getAllDogs() {
   fetch('http://localhost:3000/pups')
   .then(res => res.json())
-  .then(allDogsData => {
-    allDogsData.forEach(renderDog)
+  .then(allDogObjs => {
+    allDogObjs.forEach(renderDog)
   })
 }
 
+function getDogBar() {
+  return document.querySelector("#dog-bar")
+}
+
+function getDogInfoContainer() {
+  return document.querySelector("#dog-info")
+}
+
+function getFilterButton() {
+  return document.querySelector("#good-dog-filter")
+}
+
 function renderDog(dogObj) {
+  let dogBar = getDogBar()
+
   let span = document.createElement('span')
-  dogContainer.appendChild(span)
-  span.innerText = dogObj.name
+  dogBar.appendChild(span)
   span.dataset.id = dogObj.id
+  span.innerText = dogObj.name
   span.addEventListener('click', handleClickOfDog)
 }
 
 function handleClickOfDog(event) {
-  fetch(`http://localhost:3000/pups/${event.currentTarget.dataset.id}`)
+  let dogId = event.currentTarget.dataset.id
+  getDogInfo(dogId)
+}
+
+function getDogInfo(dogId) {
+  fetch(`http://localhost:3000/pups/${dogId}`)
   .then(res => res.json())
   .then(dogObj => renderDogInfo(dogObj))
 }
 
 function renderDogInfo(dogObj) {
-  let div = document.querySelector('#dog-info')
-  div.innerHTML = ''
+  let dogInfoContainer = getDogInfoContainer()
+  dogInfoContainer.innerHTML = ''
+
   let img = document.createElement('img')
-  div.appendChild(img)
+  dogInfoContainer.appendChild(img)
   img.src = dogObj.image
 
   let h2 = document.createElement('h2')
-  div.appendChild(h2)
+  dogInfoContainer.appendChild(h2)
   h2.innerText = dogObj.name
 
-  let button = document.createElement('button')
-  div.appendChild(button)
+  let attitudeButton = document.createElement('button')
+  dogInfoContainer.appendChild(attitudeButton)
+  attitudeButton.dataset.id = dogObj.id
+  attitudeButton.id = 'dog-attitude-' + dogObj.id
   if (dogObj.isGoodDog === true) {
-    button.innerText = "Good Dog!"
+    attitudeButton.innerText = 'Good Dog!'
   } else {
-    button.innerText = "Bad Dog!"
+    attitudeButton.innerText = 'Bad Dog!'
   }
-  button.dataset.id = dogObj.id
-  button.addEventListener('click', handleClickOfButton)
+  attitudeButton.addEventListener('click', handleClickOfAttitudeButton)
 }
 
-function handleClickOfButton(event) {
+function handleClickOfAttitudeButton(event) {
+  let dogId = event.currentTarget.dataset.id
+  patchDogAttitude(dogId)
+}
+
+function patchDogAttitude(dogId) {
   let patchData
-  if(event.currentTarget.innerText === "Good Dog!") {
+  if (document.querySelector(`#dog-attitude-${dogId}`).innerText === "Good Dog!") {
     patchData = {
       isGoodDog: false
     }
@@ -66,7 +88,7 @@ function handleClickOfButton(event) {
       isGoodDog: true
     }
   }
-  fetch(`http://localhost:3000/pups/${event.currentTarget.dataset.id}`, {
+  fetch(`http://localhost:3000/pups/${dogId}`, {
     method: "PATCH",
     body: JSON.stringify(patchData),
     headers: {
@@ -74,37 +96,33 @@ function handleClickOfButton(event) {
       "Accept": "application/json"
     }
   }).then(res => res.json())
-    .then(patchDogData => renderDogInfo(patchDogData))
+    .then(patchedDogObj => {
+      if (patchedDogObj.isGoodDog === true) {
+        document.querySelector(`#dog-attitude-${dogId}`).innerText = 'Good Dog!'
+      } else {
+        document.querySelector(`#dog-attitude-${dogId}`).innerText = 'Bad Dog!'
+      }
+    })
 }
 
-function handleClickOfFilter(event) {
-  let filter
-  if (event.currentTarget.innerText === 'Filter good dogs: OFF') {
-    event.currentTarget.innerText = 'Filter good dogs: ON'
-    filter = 'Filter good dogs: ON'
-  } else {
+function handleClickOfFilterButton(event) {
+  if (event.currentTarget.innerText === 'Filter good dogs: ON') {
+    getDogBar().innerHTML = ''
+    getDogInfoContainer().innerHTML = ''
+    getAllDogs()
     event.currentTarget.innerText = 'Filter good dogs: OFF'
-    filter = 'Filter good dogs: OFF'
+  } else {
+    getDogBar().innerHTML = ''
+    getDogInfoContainer().innerHTML = ''
+    getGoodDogs()
+    event.currentTarget.innerText = 'Filter good dogs: ON'
   }
-  filterDogs(filter)
 }
 
-function filterDogs(filter) {
-  dogContainer.innerHTML = ''
-  document.querySelector('#dog-info').innerHTML = ''
-  let boolean
-  if (filter === 'Filter good dogs: ON') {
-    boolean = true
-    fetch('http://localhost:3000/pups')
-    .then(res => res.json())
-    .then(allDogsData => {
-      allDogsData.filter(function(dog) {return dog.isGoodDog === boolean}).forEach(renderDog)
-    })
-  } else {
-    fetch('http://localhost:3000/pups')
-    .then(res => res.json())
-    .then(allDogsData => {
-      allDogsData.forEach(renderDog)
-    })
-  }
+function getGoodDogs() {
+  fetch('http://localhost:3000/pups')
+  .then(res => res.json())
+  .then(allDogObjs => {
+    allDogObjs.filter(dogObj => dogObj.isGoodDog === true).forEach(renderDog)
+  })
 }
